@@ -18,8 +18,8 @@ interface Printer {
     suspend fun queryStatus(): PrinterStatus
     
     /**
-     * Reads pending bytes from the printer. 
-     * Useful for DLE EOT real-time status responses.
+     * Reads pending bytes from the printer buffers. 
+     * Useful for receiving real-time hardware status updates.
      */
     suspend fun receive(timeoutMs: Int = 1000): ByteArray? { return null }
 }

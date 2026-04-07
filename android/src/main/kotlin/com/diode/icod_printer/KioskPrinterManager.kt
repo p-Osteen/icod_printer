@@ -11,7 +11,8 @@ import com.diode.icod_printer.transport.UsbPrinter
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Singleton manager to handle multiple printer instances and discovery.
+ * Orchestrates printer instances across the application, ensuring 
+ * efficient connection reuse and hardware lifecycle management.
  */
 object KioskPrinterManager {
     private val printers = ConcurrentHashMap<String, Printer>()

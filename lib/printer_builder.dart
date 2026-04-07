@@ -19,26 +19,26 @@ class EscPosBuilder {
   }
 
   void initialize() {
-    _bytes.addAll([0x1B, 0x40]); // ESC @ (Reset)
-    _bytes.addAll([0x1B, 0x32]); // ESC 2 (Set default line spacing)
-    _bytes.addAll([0x1B, 0x21, 0x00]); // ESC ! n (Reset Font magnification)
+    _bytes.addAll([0x1B, 0x40]); // Reset the printer
+    _bytes.addAll([0x1B, 0x32]); // Set default line spacing
+    _bytes.addAll([0x1B, 0x21, 0x00]); // Reset font magnification variables
     setTextSize(sizeNormal);
     setFont(0);
   }
 
-  /// Sets the font for subsequent text (0: Font A, 1: Font B).
+  /// Sets the font for subsequent text (0: Standard Font A, 1: Small Font B).
   void setFont(int font) {
-    _bytes.addAll([0x1B, 0x4D, font]); // ESC M n (0: Font A, 1: Font B)
+    _bytes.addAll([0x1B, 0x4D, font]); // Apply font selection command
   }
 
   /// Sets the text alignment (0: Left, 1: Center, 2: Right).
   void setAlignment(int align) {
-    _bytes.addAll([0x1B, 0x61, align]); // ESC a n
+    _bytes.addAll([0x1B, 0x61, align]); // Apply alignment command
   }
 
-  /// Sets the text size (normal, big, double height, double width).
+  /// Sets the text growth size (normal, big, double height, double width).
   void setTextSize(int size) {
-    _bytes.addAll([0x1D, 0x21, size]); // GS ! n
+    _bytes.addAll([0x1D, 0x21, size]); // Set character size override
     // Also use legacy command for better compatibility
     int escSize = 0;
     if (size == sizeDoubleHeight) escSize = 0x10;
@@ -47,9 +47,9 @@ class EscPosBuilder {
     _bytes.addAll([0x1B, 0x21, escSize]);
   }
 
-  /// Enables or disables bold text.
+  /// Enables or disables bold text emphasis.
   void setBold(bool isBold) {
-    _bytes.addAll([0x1B, 0x45, isBold ? 0x01 : 0x00]); // ESC E n
+    _bytes.addAll([0x1B, 0x45, isBold ? 0x01 : 0x00]); // Toggle emphasized mode
   }
 
   /// Adds a string of text with optional styling.
@@ -76,13 +76,13 @@ class EscPosBuilder {
   /// Performs a partial cut of the paper.
   void cut() {
     feed(4);
-    _bytes.addAll([0x1D, 0x56, 0x01]); // GS V 1 (Partial cut)
+    _bytes.addAll([0x1D, 0x56, 0x01]); // Partial paper cut command
   }
 
   /// Performs a full cut of the paper.
   void fullCut() {
     feed(4);
-    _bytes.addAll([0x1D, 0x56, 0x00]); // GS V 0 (Full cut)
+    _bytes.addAll([0x1D, 0x56, 0x00]); // Full paper cut command
   }
 
   void setDoubleHeight(bool enabled) {
@@ -99,8 +99,7 @@ class EscPosBuilder {
 
   /// Sets custom line spacing in dots.
   void setLineSpacing(int dots) {
-    // ESC 3 n
-    _bytes.addAll([0x1B, 0x33, dots]);
+    _bytes.addAll([0x1B, 0x33, dots]); // Apply variable line spacing
   }
 
   void resetLineSpacing() {

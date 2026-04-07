@@ -6,11 +6,11 @@ enum PaperStatus {
   unknown;
 
   static PaperStatus fromByte(int byte) {
-    // Bits 5 and 6 are high if paper is out
+    // Bits 5 and 6 indicate absolute paper depletion
     if ((byte & 0x60) == 0x60) {
       return PaperStatus.out;
     }
-    // Bits 2 and 3 are high if paper is near-end
+    // Bits 2 and 3 indicate that the paper roll is almost empty
     if ((byte & 0x0C) == 0x0C) {
       return PaperStatus.nearEnd;
     }
@@ -60,11 +60,11 @@ class PrinterStatus {
   /// True if the paper roll is completely empty.
   bool get isPaperOut => paper == PaperStatus.out;
 
-  /// Creates a combined [PrinterStatus] from raw ASB (Automatic Status Back) bytes.
+  /// Constructs a [PrinterStatus] report from raw hardware response bytes.
   factory PrinterStatus.fromBytes(int pStatus, int offStatus, int errStatus, int pSensorStatus) {
     return PrinterStatus(
-      isOnline: (pStatus & 0x08) == 0x00,
-      isCoverOpen: (pStatus & 0x04) == 0x04, // Bit 2 of first ASB byte
+      isOnline: (pStatus & 0x08) == 0x00, // Status bit 3 (Low = Online)
+      isCoverOpen: (pStatus & 0x04) == 0x04, // Status bit 2 (High = Open)
       error: PrinterError.fromByte(errStatus),
       paper: PaperStatus.fromByte(pSensorStatus),
     );

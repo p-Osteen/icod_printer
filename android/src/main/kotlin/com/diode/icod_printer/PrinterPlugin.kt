@@ -14,7 +14,7 @@ import com.diode.icod_printer.discovery.BluetoothScanner
 import kotlinx.coroutines.*
 
 /** 
- * PrinterPlugin
+ * Flutter platform channel handler for thermal printer interactions.
  */
 class PrinterPlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
@@ -116,11 +116,11 @@ class PrinterPlugin: FlutterPlugin, MethodCallHandler {
             val printer = KioskPrinterManager.getPrinter(context, config)
             val results = mutableListOf<Int>()
             
-            // Standard ESC/POS DLE EOT n commands (1-4)
+            // Standard ESC/POS status query commands
             for (n in 1..4) {
               val cmd = byteArrayOf(0x10, 0x04, n.toByte())
               printer.send(cmd)
-              val response = printer.receive(200) // 200ms timeout per byte
+              val response = printer.receive(200) // Pulse wait for response
               val byte = response?.getOrNull(0)
               results.add(if (byte != null) byte.toInt() and 0xFF else -1)
             }

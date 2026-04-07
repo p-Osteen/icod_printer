@@ -28,7 +28,7 @@ class PrinterConfig {
     this.paperSize = 80,
   });
 
-  /// Converts the configuration to a map for storage or platform channel communication.
+  /// Serializes the configuration into a map for platform-level communication or local persistence.
   Map<String, dynamic> toMap() {
     return {
       'transport': transportType.name,
@@ -41,7 +41,7 @@ class PrinterConfig {
     };
   }
 
-  /// Creates a configuration from a map.
+  /// Reconstructs a [PrinterConfig] from a serialized map.
   factory PrinterConfig.fromMap(Map<dynamic, dynamic> map) {
     return PrinterConfig(
       transportType: TransportType.values.firstWhere(

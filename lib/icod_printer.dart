@@ -8,26 +8,28 @@ import 'printer_status.dart';
 export 'models.dart';
 export 'printer_status.dart';
 
-/// Main entry point for interacting with thermal receipt printers.
+/// The primary interface for interacting with thermal receipt printers.
 ///
-/// Supports discovery, connection management, and printing of raw ESC/POS bytes.
+/// This class provides static methods for discovering hardware, managing 
+/// connections, and sending ESC/POS commands across various transport layers.
 class Printer {
   static const MethodChannel _channel = MethodChannel(
     'com.diode.icod_printer/methods',
   );
 
-  /// Discovers available printers (USB and Bluetooth).
-  /// [type] can be 'usb', 'bluetooth', or 'all'.
+  /// Scans for available printers over USB and Bluetooth interfaces.
+  /// 
+  /// The [type] parameter filters results: use 'usb', 'bluetooth', or 'all' (default).
   static Future<List<PrinterConfig>> discover({String type = 'all'}) async {
     final List<dynamic>? result = await _channel.invokeMethod('discover', {'type': type});
     if (result == null) return [];
     return result.map((e) => PrinterConfig.fromMap(e as Map)).toList();
   }
 
-  /// Decodes image bytes into ESC/POS raster format.
+  /// Converts raw image bytes (PNG/JPG) into ESC/POS-compatible raster data.
   ///
-  /// [bytes] should be the raw image data (PNG/JPG).
-  /// [width] is the target width in dots (default is 384 for 58mm/80mm printers).
+  /// [bytes] contains the raw image source.
+  /// [width] defines the target dot width (typically 384 for 58mm/80mm printers).
   static Future<Uint8List?> decodeImage(Uint8List bytes, {int width = 384}) async {
     final Uint8List? result = await _channel.invokeMethod('decodeImage', {
       'bytes': bytes,
@@ -36,7 +38,7 @@ class Printer {
     return result;
   }
 
-  /// Connects to a printer using the provided configuration.
+  /// Establishes a communication channel with the specified printer.
   static Future<bool> connect(PrinterConfig config) async {
     final bool result = await _channel.invokeMethod(
       'connect',
@@ -45,7 +47,7 @@ class Printer {
     return result;
   }
 
-  /// Requests permission to use the printer.
+  /// Prompts the user for hardware permissions (required for USB on Android).
   static Future<bool> requestPermission(PrinterConfig config) async {
     final bool result = await _channel.invokeMethod(
       'requestPermission',
@@ -54,7 +56,7 @@ class Printer {
     return result;
   }
 
-  /// Disconnects from the printer.
+  /// Closes the active connection to the printer.
   static Future<bool> disconnect(PrinterConfig config) async {
     final bool result = await _channel.invokeMethod(
       'disconnect',
@@ -63,7 +65,7 @@ class Printer {
     return result;
   }
 
-  /// Retrieves the current status (online, paper, cover, error) from the printer.
+  /// Queries the printer for real-time status (Paper Out, Cover Open, etc.).
   static Future<PrinterStatus> getStatus(PrinterConfig config) async {
     final List<dynamic>? results = await _channel.invokeMethod<List<dynamic>>('getStatus', config.toMap());
     if (results == null || results.length < 4) {
@@ -77,7 +79,7 @@ class Printer {
     );
   }
 
-  /// Sends raw ESC/POS bytes to the printer.
+  /// Transmits raw ESC/POS byte commands directly to the printer hardware.
   static Future<bool> printBytes(PrinterConfig config, Uint8List data) async {
     final bool result = await _channel.invokeMethod('print', {
       'config': config.toMap(),
